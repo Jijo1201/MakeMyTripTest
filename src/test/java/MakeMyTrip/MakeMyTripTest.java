@@ -47,10 +47,6 @@ import resources.readData;
 public class MakeMyTripTest extends base {
 
 	public WebDriver driver;
-	FileInputStream file;
-	XSSFWorkbook workbook;
-	XSSFSheet sheet;
-	Row row;
 
 	@BeforeTest
 	public void initialize() throws IOException {
