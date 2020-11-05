@@ -36,7 +36,7 @@ public class base {
 		if (browserName.equals("chrome")) {
 			System.setProperty("webdriver.chrome.driver", "D://chromedriver.exe");
 			ChromeOptions options = new ChromeOptions();
-			options.addArguments("user-data-dir=C:/Users/{USER}/AppData/Local/Google/Chrome/User Data");//set your path
+			options.addArguments("user-data-dir=C:/Users/JIJO/AppData/Local/Google/Chrome/User Data");//set your path
 			options.addArguments("--start-maximized");
 			driver = new ChromeDriver(options);
 
@@ -58,5 +58,7 @@ public class base {
 		return driver;
 
 	}
+	
+	
 
 }

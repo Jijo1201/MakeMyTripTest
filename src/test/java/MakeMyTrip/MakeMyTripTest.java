@@ -5,30 +5,35 @@ package MakeMyTrip;
  * Use your user_name and password for logging into the account.
  * Close all the browsers before running the test_case.
  */
-
-import java.io.File;
-
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import java.io.File;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.FluentWait;
 import org.openqa.selenium.support.ui.Select;
-import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -36,48 +41,61 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
-
 import resources.base;
+import resources.readData;
 
 public class MakeMyTripTest extends base {
 
 	public WebDriver driver;
-	
-	
+	FileInputStream file;
+	XSSFWorkbook workbook;
+	XSSFSheet sheet;
+	Row row;
+
 	@BeforeTest
 	public void initialize() throws IOException {
 
 		driver = initializeDriver();
 		driver.get(prop.getProperty("url"));
+
 	}
 
 	@Test(priority = 1)
-	public void logintest() throws InterruptedException {
+	public void logintest() throws Exception {
 		WebDriverWait wait = new WebDriverWait(driver, 30);
+		String userName = readData.getCellData(0, 0);
+		String password = readData.getCellData(0, 1);
+		System.out.println(userName);
+		System.out.println(password);
+
 		if (driver.findElements(By.xpath("//p[contains(text(),'Login/Signup for Best Prices')]")).size() != 0) {
 			driver.findElement(By.xpath("//span[@class='blue__circle appendRight10']")).click();
-			driver.findElement(By.id("username")).sendKeys("abcd@gmail.com");// use your user_name
+
+			driver.findElement(By.id("username")).sendKeys(userName);// change your user name in Data.xlsx
 			driver.findElement(By.xpath("//span[contains(text(),'Continue')]")).click();
-			driver.findElement(By.xpath("//*[@id='password']")).sendKeys("12345678");// user your password
+			driver.findElement(By.xpath("//*[@id='password']")).sendKeys(password);// change your password in Data.xlsx
 			driver.findElement(By.xpath("//button[@class='capText font16']")).click();
 
 		} else {
 			driver.findElement(By.xpath("//p[contains(text(), 'Login or Create Account')]")).click();
-			driver.findElement(By.id("username")).sendKeys("abcd@gmail.com");// use your user_name
+			driver.findElement(By.id("username")).sendKeys(userName);// change your user name in Data.xlsx
 			driver.findElement(By.xpath("//span[contains(text(),'Continue')]")).click();
-			driver.findElement(By.xpath("//*[@id='password']")).sendKeys("12345678");// user your password
+			driver.findElement(By.xpath("//*[@id='password']")).sendKeys(password);// change your password in Data.xlsx
 			driver.findElement(By.xpath("//button[@class='capText font16']")).click();
 		}
 
 		WebElement exp = wait.until(ExpectedConditions
 				.visibilityOfElementLocated(By.xpath("//div[@class='makeFlex column userNameText  latoBold']")));
-		Assert.assertEquals(exp.getText(), "Hey User");
+		Assert.assertEquals(exp.getText(), "Hey USER");
 
 	}
 
 	@Test(priority = 2)
-	public void hotelBookingtest() throws InterruptedException {
+	public void hotelBookingtest() throws Exception {
+
 		WebDriverWait wait = new WebDriverWait(driver, 40);
+		String fName = readData.getCellData(0, 2);
+		String lName = readData.getCellData(0, 3);
 		driver.findElement(By.cssSelector("[class='chNavIcon appendBottom2 chSprite chHotels ']")).click();
 		driver.findElement(By.id("city")).click();
 		driver.findElement(By.cssSelector("[class='react-autosuggest__input react-autosuggest__input--open']"))
@@ -150,7 +168,7 @@ public class MakeMyTripTest extends base {
 		selectRating.click();
 
 		WebElement hotelFilter = wait
-				.until(ExpectedConditions.elementToBeClickable(By.xpath("//label[text()='Hotel']")));
+				.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//label[text()='Hotel']")));
 		hotelFilter.click();
 
 		WebElement selectHotel = wait
@@ -163,10 +181,11 @@ public class MakeMyTripTest extends base {
 
 		driver.findElement(By.cssSelector("a#detpg_headerright_book_now")).click();
 
-		driver.findElement(By.id("fName")).sendKeys("john");
-		driver.findElement(By.id("lName")).sendKeys("jacob");
+		driver.findElement(By.id("fName")).sendKeys(fName);
+		driver.findElement(By.id("lName")).sendKeys(lName);
 
 		driver.findElement(By.xpath("//a[@class='primaryBtn btnPayNow']//div[1]")).click();
+		driver.findElement(By.id("CC")).click();
 
 		WebElement card = wait.until(ExpectedConditions.elementToBeClickable(By.id("PAYMENT_cardNumber")));
 		card.sendKeys("23334568965232541");
@@ -210,7 +229,6 @@ public class MakeMyTripTest extends base {
 	public void teardown() {
 
 		driver.quit();
-
 	}
 
 }
